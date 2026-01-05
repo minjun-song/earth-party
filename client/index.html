@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Earth Party</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --panel:#fff;
+      --line:#e5e7eb;
+      --text:#111827;
+
+      --hydro:#3b82f6;
+      --geo:#f59e0b;
+      --atmo:#ffffff;
+      --bio:#22c55e;
+      --exo:#6d28d9;
+
+      --slot:#c7d2fe;
+      --slot-strong:#4f46e5;
+    }
+    body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);}
+    .wrap{display:flex;gap:12px;padding:12px;box-sizing:border-box;max-width:1400px;margin:0 auto;}
+    .left{width:320px;min-width:280px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;box-sizing:border-box;}
+    .main{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;box-sizing:border-box;min-height:700px;}
+    h1{font-size:20px;margin:0 0 8px 0;display:flex;align-items:center;gap:8px;}
+    .row{display:flex;gap:8px;align-items:center;margin:8px 0;}
+    input{padding:10px 10px;border:1px solid var(--line);border-radius:10px;outline:none;width:100%;box-sizing:border-box;}
+    button{padding:10px 12px;border:1px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;font-weight:700;}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    .muted{color:#6b7280;font-size:12px;}
+    .hr{height:1px;background:var(--line);margin:10px 0;}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);font-size:12px;background:#fff;}
+    .players{display:flex;flex-direction:column;gap:10px;}
+    .pbox{border:1px solid var(--line);border-radius:12px;padding:10px;}
+    .pbox .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+    .pname{font-weight:900;}
+    .badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+    .badge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;}
+    .badge.turn{background:#111827;color:#fff;border-color:#111827;}
+    .scoreline{font-size:12px;color:#374151;}
+    .big{font-size:22px;font-weight:900;margin:6px 0;}
+    .log{font-size:12px;color:#111827;white-space:pre-line;}
+
+    .boardTitle{font-size:16px;font-weight:900;margin:2px 0 8px;}
+    .boardHint{font-size:12px;color:#6b7280;margin-bottom:10px;}
+    .pyramid{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:10px;}
+    .prow{display:flex;gap:10px;justify-content:center;}
+    .slot{
+      width:56px;height:44px;border-radius:10px;
+      border:2px dashed #b6c0e7;background:transparent;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;color:#111827;
+      user-select:none;
+    }
+    .slot.filled{
+      border-style:solid;border-color:#d1d5db;background:#fff;
+    }
+    .slot.placeable{
+      border-style:solid;border-color:var(--slot);background:#fff;
+      box-shadow:0 0 0 2px rgba(79,70,229,.12);
+      cursor:pointer;
+    }
+    .slot.placeable.strong{
+      border-color:var(--slot-strong);
+      box-shadow:0 0 0 3px rgba(79,70,229,.20);
+    }
+
+    .handArea{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;}
+    .handTitle{font-size:14px;font-weight:900;margin-bottom:6px;}
+    .handHint{font-size:12px;color:#6b7280;margin-bottom:10px;}
+    .cards{display:flex;flex-wrap:wrap;gap:10px;}
+    .card{
+      min-width:64px;height:38px;border-radius:10px;border:2px solid #111827;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;cursor:pointer;user-select:none;
+      padding:0 10px;
+    }
+    .card[data-s="수권"]{background:var(--hydro);border-color:var(--hydro);color:#fff;}
+    .card[data-s="지권"]{background:var(--geo);border-color:var(--geo);color:#111827;}
+    .card[data-s="기권"]{background:var(--atmo);border-color:#111827;color:#111827;}
+    .card[data-s="생물권"]{background:var(--bio);border-color:var(--bio);color:#fff;}
+    .card[data-s="외권"]{background:var(--exo);border-color:var(--exo);color:#fff;}
+    .card.selected{outline:4px solid rgba(17,24,39,.25);}
+
+    .slot.filled[data-s="수권"]{background:rgba(59,130,246,.12);border-color:var(--hydro);}
+    .slot.filled[data-s="지권"]{background:rgba(245,158,11,.18);border-color:var(--geo);}
+    .slot.filled[data-s="기권"]{background:#fff;border-color:#111827;}
+    .slot.filled[data-s="생물권"]{background:rgba(34,197,94,.14);border-color:var(--bio);}
+    .slot.filled[data-s="외권"]{background:rgba(109,40,217,.12);border-color:var(--exo);}
+
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:12px;z-index:50;}
+    .modal{width:min(720px, 95vw);background:#fff;border-radius:16px;border:1px solid var(--line);padding:16px;box-sizing:border-box;}
+    .modal h2{margin:0 0 8px;font-size:18px;}
+    .modal .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+    .modal .meta .pill{font-weight:800;}
+    .modal .qbox{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;background:#fafafa;}
+    .modal .qtitle{font-weight:900;margin-bottom:6px;}
+    .modal .qbody{white-space:pre-wrap;color:#111827;}
+    .modal .hint{margin-top:8px;color:#6b7280;font-size:12px;}
+    .modal .ansRow{display:flex;gap:10px;align-items:center;margin-top:10px;}
+    .modal select,.modal input{
+      flex:1;padding:10px;border:1px solid var(--line);border-radius:10px;
+      font-size:14px;
+    }
+    .modal .btnRow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
+    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:999px;font-weight:800;display:none;z-index:60;}
+    .summaryTable{width:100%;border-collapse:collapse;margin-top:10px;}
+    .summaryTable th,.summaryTable td{border-bottom:1px solid var(--line);padding:8px;font-size:13px;text-align:left;}
+    .winnerBox{margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fafafa;font-weight:900;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="left">
+    <h1>🌍 Earth Party</h1>
+    <div class="muted" id="connTxt">연결됨: -</div>
+
+    <div class="row">
+      <input id="nameInput" placeholder="내 번호(이름)" value="1"/>
+      <input id="roomInput" placeholder="방 ID" />
+    </div>
+    <div class="row">
+      <button id="btnCreate">방 만들기(자동 ID)</button>
+      <button id="btnJoin">입장</button>
+    </div>
+
+    <div class="row">
+      <button id="btnStart" style="width:100%;">게임 시작(호스트)</button>
+    </div>
+
+    <!-- ✅ 요청: 다음 라운드 버튼 별도 노출 -->
+    <div class="row">
+      <button id="btnNextRound" style="width:100%;">다음 라운드(호스트)</button>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="muted" id="roomInfo">방 정보 없음</div>
+
+    <div class="hr"></div>
+
+    <div class="muted">
+      <b>규칙 요약</b><br/>
+      - 카드 배치 전 퀴즈 진행 (정답 +0.2 / 오답 -0.2, 오답이어도 배치)<br/>
+      - 아래층: 연속 구간의 왼쪽/오른쪽 끝에만 추가<br/>
+      - 위층: 아래 2장 위에 가능 + 아래 2장 중 하나와 같은 색<br/>
+      - 놓을 곳이 없으면 자동 패스(턴 스킵)<br/>
+      - 라운드 종료: 보드가 꽉 찼거나 모든 플레이어가 연속 패스<br/>
+      - 벌점: 라운드 종료 시 남은 손패 장수 누적 (낮은 벌점 승리)<br/>
+      - 최종 우승자: 누적 벌점 최소, 동점이면 quizScore 높은 사람
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="players" id="players"></div>
+
+    <div class="hr"></div>
+
+    <div class="big" id="myScoreTxt">quizScore: 0.00</div>
+    <div class="big" id="myPenaltyTxt">penalty: 0</div>
+    <div class="muted" id="selTxt">선택 카드: - / 선택 위치: -</div>
+
+    <div class="hr"></div>
+    <div class="log" id="logBox"></div>
+  </div>
+
+  <div class="main">
+    <div class="boardTitle">피라미드 보드</div>
+    <div class="boardHint">카드를 먼저 선택하고 → 굵게 표시된 칸(선)을 클릭</div>
+
+    <div class="pyramid" id="pyramid"></div>
+
+    <div class="handArea">
+      <div class="handTitle">보유 카드</div>
+      <div class="handHint">카드를 클릭하면 배치 가능한 칸이 강조됩니다.</div>
+      <div class="cards" id="hand"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz Modal -->
+<div class="overlay" id="quizOverlay">
+  <div class="modal">
+    <h2>문제 풀이</h2>
+    <div class="meta">
+      <span class="pill" id="quizSpherePill">권역</span>
+      <span class="pill" id="quizTypePill">유형</span>
+    </div>
+
+    <div class="qbox">
+      <div class="qtitle" id="quizTitle"></div>
+      <div class="qbody" id="quizBody"></div>
+      <div class="hint" id="quizHint"></div>
+    </div>
+
+    <div class="ansRow" id="ansRow"></div>
+
+    <div class="btnRow">
+      <button id="btnQuizCancel">취소</button>
+      <button id="btnQuizSubmit">제출</button>
+    </div>
+  </div>
+</div>
+
+<!-- Round Summary Modal -->
+<div class="overlay" id="sumOverlay">
+  <div class="modal">
+    <h2 id="sumTitle">라운드 결과</h2>
+    <div class="muted" id="sumReason"></div>
+    <table class="summaryTable" id="sumTable"></table>
+    <div class="btnRow">
+      <button id="btnSumClose">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Game Summary Modal (최종 우승자 전용) -->
+<div class="overlay" id="gameOverlay">
+  <div class="modal">
+    <h2>게임 종료</h2>
+    <div class="winnerBox" id="winnerBox">우승자: -</div>
+    <table class="summaryTable" id="gameTable"></table>
+    <div class="btnRow">
+      <button id="btnGameClose">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const socket = io();
+  const $ = (id) => document.getElementById(id);
+
+  const nameInput = $("nameInput");
+  const roomInput = $("roomInput");
+  const btnCreate = $("btnCreate");
+  const btnJoin = $("btnJoin");
+  const btnStart = $("btnStart");
+  const btnNextRound = $("btnNextRound");
+
+  const roomInfo = $("roomInfo");
+  const playersBox = $("players");
+  const pyramidBox = $("pyramid");
+  const handBox = $("hand");
+  const logBox = $("logBox");
+
+  const myScoreTxt = $("myScoreTxt");
+  const myPenaltyTxt = $("myPenaltyTxt");
+  const selTxt = $("selTxt");
+
+  const toast = $("toast");
+
+  const quizOverlay = $("quizOverlay");
+  const quizSpherePill = $("quizSpherePill");
+  const quizTypePill = $("quizTypePill");
+  const quizTitle = $("quizTitle");
+  const quizBody = $("quizBody");
+  const quizHint = $("quizHint");
+  const ansRow = $("ansRow");
+  const btnQuizCancel = $("btnQuizCancel");
+  const btnQuizSubmit = $("btnQuizSubmit");
+
+  const sumOverlay = $("sumOverlay");
+  const sumTitle = $("sumTitle");
+  const sumReason = $("sumReason");
+  const sumTable = $("sumTable");
+  const btnSumClose = $("btnSumClose");
+
+  const gameOverlay = $("gameOverlay");
+  const winnerBox = $("winnerBox");
+  const gameTable = $("gameTable");
+  const btnGameClose = $("btnGameClose");
+
+  let state = null;
+  let selectedCardId = null;
+  let selectedSphere = null;
+  let selectedPos = null;
+
+  function showToast(msg, ms=2000){
+    toast.textContent = msg;
+    toast.style.display = "block";
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>toast.style.display="none", ms);
+  }
+
+  function renderPlayers(){
+    playersBox.innerHTML = "";
+    if (!state) return;
+
+    for (const p of state.players){
+      const div = document.createElement("div");
+      div.className = "pbox";
+
+      const top = document.createElement("div");
+      top.className = "top";
+      const left = document.createElement("div");
+      left.className = "pname";
+      left.textContent = `P${p.seat} ${p.name}`;
+      const badges = document.createElement("div");
+      badges.className = "badges";
+
+      if (p.isHost) {
+        const b = document.createElement("span");
+        b.className = "badge";
+        b.textContent = "HOST";
+        badges.appendChild(b);
+      }
+      if (p.isMe) {
+        const b = document.createElement("span");
+        b.className = "badge";
+        b.textContent = "ME";
+        badges.appendChild(b);
+      }
+      if (p.isTurn) {
+        const b = document.createElement("span");
+        b.className = "badge turn";
+        b.textContent = "TURN";
+        badges.appendChild(b);
+      }
+
+      top.appendChild(left);
+      top.appendChild(badges);
+
+      const score = document.createElement("div");
+      score.className = "scoreline";
+      score.textContent = `hand: ${p.handCount} | penalty: ${p.penaltyTotal} | quizScore: ${Number(p.quizScoreTotal).toFixed(2)}`;
+
+      div.appendChild(top);
+      div.appendChild(score);
+      playersBox.appendChild(div);
+    }
+  }
+
+  function buildPyramid(){
+    pyramidBox.innerHTML = "";
+    if (!state) return;
+    const board = state.board;
+
+    for (let r=0; r<8; r++){
+      const row = document.createElement("div");
+      row.className = "prow";
+      for (let c=0; c<=r; c++){
+        const cell = board[r][c];
+        const slot = document.createElement("div");
+        slot.className = "slot";
+        slot.dataset.r = String(r);
+        slot.dataset.c = String(c);
+
+        if (cell){
+          slot.classList.add("filled");
+          slot.dataset.s = cell.sphere;
+          slot.textContent = cell.sphere;
+        } else {
+          slot.textContent = "";
+        }
+
+        slot.addEventListener("click", () => onSlotClick(r,c));
+        row.appendChild(slot);
+      }
+      pyramidBox.appendChild(row);
+    }
+  }
+
+  function setSelectedCard(cardId){
+    selectedCardId = cardId;
+    selectedPos = null;
+
+    const myHand = state?.myHand || [];
+    const card = myHand.find(x => x.id === cardId);
+    selectedSphere = card ? card.sphere : null;
+
+    [...handBox.querySelectorAll(".card")].forEach(el => {
+      el.classList.toggle("selected", el.dataset.id === cardId);
+    });
+
+    updatePlaceableSlots();
+    updateSelText();
+  }
+
+  function updateSelText(){
+    const posTxt = selectedPos ? `${selectedPos.r},${selectedPos.c}` : "-";
+    selTxt.textContent = `선택 카드: ${selectedSphere || "-"} / 선택 위치: ${posTxt}`;
+  }
+
+  function renderHand(){
+    handBox.innerHTML = "";
+    if (!state) return;
+    const myHand = state.myHand || [];
+
+    for (const card of myHand){
+      const el = document.createElement("div");
+      el.className = "card";
+      el.dataset.id = card.id;
+      el.dataset.s = card.sphere;
+      el.textContent = card.sphere;
+      el.addEventListener("click", ()=>setSelectedCard(card.id));
+      handBox.appendChild(el);
+    }
+
+    if (selectedCardId && !myHand.find(x=>x.id===selectedCardId)){
+      selectedCardId = null;
+      selectedSphere = null;
+    }
+    if (selectedCardId){
+      setSelectedCard(selectedCardId);
+    } else {
+      updatePlaceableSlots();
+      updateSelText();
+    }
+  }
+
+  // ✅ 핵심 수정: "아래줄이 전부 찼는지" 체크 제거
+  // 위칸은 아래 받침 2장만 있으면 가능해야 함
+  function canTryPlace(r,c){
+    if (!state) return false;
+    if (!selectedCardId) return false;
+    if (state.status !== "PLAYING") return false;
+
+    const me = state.players.find(p=>p.isMe);
+    if (!me || !me.isTurn) return false;
+
+    if (state.board[r][c]) return false;
+
+    const cardSphere = selectedSphere;
+    if (!cardSphere) return false;
+
+    if (r === 7) {
+      const row = state.board[7];
+      const occ = row.map((x,idx)=>x?idx:null).filter(x=>x!==null);
+      if (occ.length===0) return true;
+      const min = Math.min(...occ), max = Math.max(...occ);
+      const legal = [];
+      if (min-1>=0 && !row[min-1]) legal.push(min-1);
+      if (max+1<=7 && !row[max+1]) legal.push(max+1);
+      return legal.includes(c);
+    }
+
+    const left = state.board[r+1][c];
+    const right = state.board[r+1][c+1];
+    if (!left || !right) return false;
+
+    return cardSphere === left.sphere || cardSphere === right.sphere;
+  }
+
+  function updatePlaceableSlots(){
+    const slots = [...pyramidBox.querySelectorAll(".slot")];
+    slots.forEach(s=>{
+      s.classList.remove("placeable","strong");
+    });
+    if (!selectedCardId) return;
+
+    const placeables = [];
+    slots.forEach(s=>{
+      const r = Number(s.dataset.r), c = Number(s.dataset.c);
+      if (canTryPlace(r,c)){
+        s.classList.add("placeable");
+        placeables.push(s);
+      }
+    });
+    placeables.forEach(s=>s.classList.add("strong"));
+  }
+
+  function onSlotClick(r,c){
+    if (!selectedCardId) return;
+    if (!canTryPlace(r,c)) return;
+
+    selectedPos = { r, c };
+    updateSelText();
+
+    socket.emit("requestQuestion", {
+      roomId: state.roomId,
+      cardId: selectedCardId,
+      r, c
+    });
+  }
+
+  function setRoomInfo(){
+    if (!state){
+      roomInfo.textContent = "방 정보 없음";
+      btnStart.disabled = true;
+      btnNextRound.disabled = true;
+      return;
+    }
+
+    roomInfo.textContent =
+      `방: ${state.roomId} / 참가자: ${state.players.length} / 상태: ${state.status} / 라운드: ${state.roundIndex}/${state.totalRounds || "?"}`;
+
+    const me = state.players.find(p=>p.isMe);
+    const isHost = !!(me && state.players.find(x=>x.isHost && x.isMe));
+
+    // 호스트만 가능
+    btnStart.disabled = !isHost || state.status !== "WAITING";
+    btnNextRound.disabled = !isHost || state.status !== "ROUND_END";
+  }
+
+  function renderLog(){
+    if (!state) { logBox.textContent=""; return; }
+    logBox.textContent = (state.log || []).join("\n");
+  }
+
+  function renderAll(){
+    setRoomInfo();
+    renderPlayers();
+    buildPyramid();
+    renderHand();
+    renderLog();
+
+    myScoreTxt.textContent = `quizScore: ${Number(state.myQuizScore || 0).toFixed(2)}`;
+    myPenaltyTxt.textContent = `penalty: ${state.myPenalty || 0}`;
+  }
+
+  // =========================
+  // Quiz Modal
+  // =========================
+  function openQuizModal(payload){
+    quizSpherePill.textContent = `권역: ${payload.sphere}`;
+    quizTypePill.textContent = `유형: ${payload.type || "-"}`;
+    quizTitle.textContent = payload.question || "(제목 없음)";
+    quizBody.textContent = payload.body || "";
+    quizHint.textContent = payload.hint ? `힌트: ${payload.hint}` : "";
+
+    ansRow.innerHTML = "";
+
+    const type = String(payload.type || "").toUpperCase();
+    if (type === "OX"){
+      const sel = document.createElement("select");
+      sel.id = "ansInput";
+      ["", "O", "X"].forEach(v=>{
+        const opt = document.createElement("option");
+        opt.value=v;
+        opt.textContent = v==="" ? "선택" : v;
+        sel.appendChild(opt);
+      });
+      ansRow.appendChild(sel);
+    } else if (type === "MCQ"){
+      const sel = document.createElement("select");
+      sel.id = "ansInput";
+      ["", "A", "B", "C", "D"].forEach(v=>{
+        const opt = document.createElement("option");
+        opt.value=v;
+        opt.textContent = v==="" ? "선택(A/B/C/D)" : v;
+        sel.appendChild(opt);
+      });
+      ansRow.appendChild(sel);
+
+      if (payload.choices){
+        const div = document.createElement("div");
+        div.style.marginTop="10px";
+        div.style.fontSize="13px";
+        div.style.whiteSpace="pre-wrap";
+        div.textContent = payload.choices;
+        ansRow.appendChild(div);
+      }
+    } else {
+      const input = document.createElement("input");
+      input.id="ansInput";
+      input.placeholder="정답 입력";
+      ansRow.appendChild(input);
+    }
+
+    quizOverlay.style.display = "flex";
+  }
+
+  function closeQuizModal(){
+    quizOverlay.style.display = "none";
+  }
+
+  btnQuizCancel.addEventListener("click", ()=>{
+    if (state?.roomId) socket.emit("cancelQuiz", { roomId: state.roomId });
+    closeQuizModal();
+  });
+
+  btnQuizSubmit.addEventListener("click", ()=>{
+    const el = document.getElementById("ansInput");
+    const ans = el ? el.value : "";
+    if (!state?.roomId) return;
+    socket.emit("submitAnswer", { roomId: state.roomId, answer: ans });
+    closeQuizModal();
+  });
+
+  // =========================
+  // Round Summary Modal
+  // =========================
+  function openSummaryModal(summary){
+    sumTitle.textContent = summary?.roundIndex ? `라운드 ${summary.roundIndex} 결과` : "라운드 결과";
+    sumReason.textContent = summary?.reason ? `종료 사유: ${summary.reason}` : "";
+
+    sumTable.innerHTML = `
+      <tr>
+        <th>플레이어</th>
+        <th>남은 카드</th>
+        <th>이번 라운드 벌점</th>
+        <th>누적 벌점</th>
+        <th>누적 quizScore</th>
+      </tr>
+    `;
+    (summary?.results || []).forEach(r=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>P${r.seat} ${r.name || ""}</td>
+        <td>${r.remaining}</td>
+        <td>${r.penaltyAdded}</td>
+        <td><b>${r.penaltyTotal}</b></td>
+        <td>${Number(r.quizScoreTotal).toFixed(2)}</td>
+      `;
+      sumTable.appendChild(tr);
+    });
+
+    sumOverlay.style.display = "flex";
+  }
+
+  btnSumClose.addEventListener("click", ()=>{
+    sumOverlay.style.display = "none";
+  });
+
+  // =========================
+  // ✅ Game Summary Modal
+  // =========================
+  function openGameModal(gs){
+    const w = gs?.winner;
+    winnerBox.textContent = w ? `🏆 우승자: P${w.seat} (벌점 ${w.penaltyTotal}, quizScore ${Number(w.quizScoreTotal).toFixed(2)})` : "우승자: -";
+
+    gameTable.innerHTML = `
+      <tr>
+        <th>순위</th>
+        <th>플레이어</th>
+        <th>누적 벌점</th>
+        <th>누적 quizScore</th>
+      </tr>
+    `;
+    (gs?.leaderboard || []).forEach((r, idx)=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${idx+1}</td>
+        <td>P${r.seat} ${r.name || ""}</td>
+        <td><b>${r.penaltyTotal}</b></td>
+        <td>${Number(r.quizScoreTotal).toFixed(2)}</td>
+      `;
+      gameTable.appendChild(tr);
+    });
+
+    gameOverlay.style.display = "flex";
+  }
+
+  btnGameClose.addEventListener("click", ()=>{
+    gameOverlay.style.display = "none";
+  });
+
+  // =========================
+  // Socket events
+  // =========================
+  socket.on("connect", ()=>{
+    $("connTxt").textContent = `연결됨: ${socket.id}`;
+  });
+
+  socket.on("roomCreated", ({ roomId })=>{
+    roomInput.value = roomId;
+    showToast(`방 생성: ${roomId}`);
+  });
+
+  socket.on("roomState", (s)=>{
+    state = s;
+    renderAll();
+  });
+
+  socket.on("showQuiz", (payload)=>{
+    openQuizModal(payload);
+  });
+
+  socket.on("quizResult", ({ correct, delta })=>{
+    showToast(`${correct ? "정답" : "오답"} (${delta > 0 ? "+" : ""}${delta})`);
+  });
+
+  socket.on("quizCancelled", ()=>{
+    showToast("퀴즈 취소");
+  });
+
+  socket.on("roundSummary", (summary)=>{
+    openSummaryModal(summary);
+  });
+
+  // ✅ 게임 종료 최종 결과창
+  socket.on("gameSummary", (gs)=>{
+    openGameModal(gs);
+  });
+
+  socket.on("errorMsg", (msg)=>{
+    console.warn(msg);
+    showToast(msg, 3000);
+  });
+
+  // =========================
+  // Buttons
+  // =========================
+  btnCreate.addEventListener("click", ()=>{
+    socket.emit("createRoom", { name: nameInput.value.trim() || "1" });
+  });
+
+  btnJoin.addEventListener("click", ()=>{
+    const roomId = roomInput.value.trim().toUpperCase();
+    if (!roomId) return showToast("방 ID를 입력하세요.");
+    socket.emit("joinRoom", { roomId, name: nameInput.value.trim() || "2" });
+  });
+
+  // 첫 시작(호스트)
+  btnStart.addEventListener("click", ()=>{
+    if (!state?.roomId) return showToast("방에 먼저 들어가세요.");
+    socket.emit("startGame", { roomId: state.roomId });
+  });
+
+  // ✅ 다음 라운드(호스트)
+  btnNextRound.addEventListener("click", ()=>{
+    if (!state?.roomId) return showToast("방에 먼저 들어가세요.");
+    socket.emit("startGame", { roomId: state.roomId }); // 서버가 ROUND_END면 다음 라운드로 처리
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "penguin-party-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@notionhq/client": "^5.6.0",
+    "dotenv": "^17.2.3",
+    "express": "^4.22.1",
+    "socket.io": "^4.8.3"
+  }
+}
