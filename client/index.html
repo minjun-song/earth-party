@@ -110,6 +110,53 @@
     .summaryTable{width:100%;border-collapse:collapse;margin-top:10px;}
     .summaryTable th,.summaryTable td{border-bottom:1px solid var(--line);padding:8px;font-size:13px;text-align:left;}
     .winnerBox{margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fafafa;font-weight:900;}
+
+    /* =========================================================
+       Earth-Party v0.1.2: Footer + About/License (SAFE ADD-ON)
+       - 기존 게임 로직을 건드리지 않고 UI만 추가
+       - z-index를 overlay(50)보다 낮게 둬서 모달 방해 없음
+       ========================================================= */
+    .ep-footer{
+      position:fixed;
+      left:0; right:0; bottom:0;
+      padding:10px 12px;
+      background:rgba(255,255,255,.92);
+      border-top:1px solid var(--line);
+      font-size:12px;
+      line-height:1.45;
+      z-index:40;
+      backdrop-filter:saturate(140%) blur(6px);
+    }
+    .ep-footer .row1{font-weight:900;}
+    .ep-footer .row2{color:#374151;}
+    .ep-footer a{color:#111827;text-decoration:underline;text-underline-offset:2px;}
+    .ep-footer a:hover{opacity:.8;}
+
+    /* Footer가 화면을 가리는 것을 최소화하기 위해 wrap에 여백 추가 */
+    body{padding-bottom:64px;}
+
+    /* About/License 모달(overlay 재사용하지 않고 별도 overlay 사용: 충돌 최소) */
+    .ep-overlay{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.35);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:12px;
+      z-index:55; /* 기존 overlay(50)보다 높게 */
+    }
+    .ep-modal{
+      width:min(720px, 95vw);
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+      box-sizing:border-box;
+    }
+    .ep-modal h2{margin:0 0 8px;font-size:18px;}
+    .ep-modal .small{font-size:12px;color:#6b7280;line-height:1.5;}
+    .ep-modal .block{border:1px solid var(--line);border-radius:12px;background:#fafafa;padding:12px;margin-top:10px;white-space:pre-wrap;}
+    .ep-modal .btnRow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
   </style>
 </head>
 <body>
@@ -231,6 +278,75 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- ===============================
+     Earth-Party v0.1.2 Footer
+     =============================== -->
+<div class="ep-footer" id="epFooter">
+  <div class="row1">© 2026 지구파티(Earth-Party) · 기획·개발: 송민준 (Song Minjun)</div>
+  <div class="row2">
+    v0.1.2 (Beta) · 최근 업데이트: 2026.01.05 ·
+    <a href="#" id="epLinkAbout">About</a> |
+    <a href="#" id="epLinkLicense">License</a> |
+    <a href="https://earth-party.onrender.com" target="_blank" rel="noopener">Official</a>
+  </div>
+</div>
+
+<!-- ===============================
+     About Modal (SAFE)
+     =============================== -->
+<div class="ep-overlay" id="epAboutOverlay" aria-hidden="true">
+  <div class="ep-modal" role="dialog" aria-modal="true" aria-labelledby="epAboutTitle">
+    <h2 id="epAboutTitle">About · 지구파티(Earth-Party)</h2>
+    <div class="small">
+      지구파티는 지구과학 개념 이해와 형성평가를 지원하기 위해<br/>
+      실시간 문제 응답과 보드게임 요소를 결합한<br/>
+      탐구 기반 교육용 게임입니다.
+    </div>
+    <div class="block" id="epAboutBlock">
+Earth-Party is an inquiry-based Earth Science board game
+designed to support concept understanding and formative assessment
+through real-time question-response interaction.
+
+Version: v0.1.2 (Beta)
+Last updated: 2026.01.05
+Official: https://earth-party.onrender.com
+    </div>
+    <div class="btnRow">
+      <button id="epAboutClose">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===============================
+     License Modal (SAFE)
+     =============================== -->
+<div class="ep-overlay" id="epLicenseOverlay" aria-hidden="true">
+  <div class="ep-modal" role="dialog" aria-modal="true" aria-labelledby="epLicenseTitle">
+    <h2 id="epLicenseTitle">License · 저작권/사용 안내</h2>
+    <div class="block" id="epLicenseBlock">
+본 게임은 교육 목적의 비영리 사용을 허용합니다.
+
+문항 및 설명 콘텐츠는 CC BY-NC-SA 4.0 라이선스를 따르며,
+출처 표시 및 동일 조건 하에서의 공유가 가능합니다.
+
+게임 코드의 라이선스는 MIT License입니다.
+
+권장 인용:
+Song, M. (2026).
+Earth-Party: An inquiry-based Earth Science board game for formative assessment.
+Online educational game, v0.1.2.
+https://earth-party.onrender.com
+
+원작 착안 고지:
+본 교구는 보드게임 ‘Penguin Party’에서 게임 구조적 아이디어를 착안하였으며,
+규칙과 콘텐츠는 지구과학 교육 목적에 맞게 재구성됨.
+    </div>
+    <div class="btnRow">
+      <button id="epLicenseClose">닫기</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const socket = io();
   const $ = (id) => document.getElementById(id);
@@ -274,6 +390,45 @@
   const winnerBox = $("winnerBox");
   const gameTable = $("gameTable");
   const btnGameClose = $("btnGameClose");
+
+  /* =========================================================
+     Earth-Party v0.1.2: Footer links handlers (SAFE ADD-ON)
+     - 기존 게임 로직과 독립적으로 동작
+     ========================================================= */
+  const epAboutOverlay = $("epAboutOverlay");
+  const epLicenseOverlay = $("epLicenseOverlay");
+  const epLinkAbout = $("epLinkAbout");
+  const epLinkLicense = $("epLinkLicense");
+  const epAboutClose = $("epAboutClose");
+  const epLicenseClose = $("epLicenseClose");
+
+  function openEpOverlay(overlayEl){
+    if (!overlayEl) return;
+    overlayEl.style.display = "flex";
+    overlayEl.setAttribute("aria-hidden","false");
+  }
+  function closeEpOverlay(overlayEl){
+    if (!overlayEl) return;
+    overlayEl.style.display = "none";
+    overlayEl.setAttribute("aria-hidden","true");
+  }
+
+  if (epLinkAbout) epLinkAbout.addEventListener("click", (e)=>{ e.preventDefault(); openEpOverlay(epAboutOverlay); });
+  if (epLinkLicense) epLinkLicense.addEventListener("click", (e)=>{ e.preventDefault(); openEpOverlay(epLicenseOverlay); });
+  if (epAboutClose) epAboutClose.addEventListener("click", ()=>closeEpOverlay(epAboutOverlay));
+  if (epLicenseClose) epLicenseClose.addEventListener("click", ()=>closeEpOverlay(epLicenseOverlay));
+
+  // overlay 바깥 클릭 시 닫기
+  if (epAboutOverlay) epAboutOverlay.addEventListener("click", (e)=>{ if (e.target === epAboutOverlay) closeEpOverlay(epAboutOverlay); });
+  if (epLicenseOverlay) epLicenseOverlay.addEventListener("click", (e)=>{ if (e.target === epLicenseOverlay) closeEpOverlay(epLicenseOverlay); });
+
+  // ESC로 닫기
+  window.addEventListener("keydown", (e)=>{
+    if (e.key === "Escape"){
+      closeEpOverlay(epAboutOverlay);
+      closeEpOverlay(epLicenseOverlay);
+    }
+  });
 
   let state = null;
   let selectedCardId = null;
