@@ -21,13 +21,13 @@
       --slot:#c7d2fe;
       --slot-strong:#4f46e5;
     }
-    body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);}
+    body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);padding-bottom:64px;}
     .wrap{display:flex;gap:12px;padding:12px;box-sizing:border-box;max-width:1400px;margin:0 auto;}
     .left{width:320px;min-width:280px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;box-sizing:border-box;}
     .main{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;box-sizing:border-box;min-height:700px;}
     h1{font-size:20px;margin:0 0 8px 0;display:flex;align-items:center;gap:8px;}
     .row{display:flex;gap:8px;align-items:center;margin:8px 0;}
-    input{padding:10px 10px;border:1px solid var(--line);border-radius:10px;outline:none;width:100%;box-sizing:border-box;}
+    input, select{padding:10px 10px;border:1px solid var(--line);border-radius:10px;outline:none;width:100%;box-sizing:border-box;}
     button{padding:10px 12px;border:1px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;font-weight:700;}
     button:disabled{opacity:.45;cursor:not-allowed}
     .muted{color:#6b7280;font-size:12px;}
@@ -54,6 +54,9 @@
       display:flex;align-items:center;justify-content:center;
       font-weight:900;color:#111827;
       user-select:none;
+      font-size:13px;
+      text-align:center;
+      padding:0 6px;
     }
     .slot.filled{
       border-style:solid;border-color:#d1d5db;background:#fff;
@@ -77,19 +80,22 @@
       display:flex;align-items:center;justify-content:center;
       font-weight:900;cursor:pointer;user-select:none;
       padding:0 10px;
+      font-size:13px;
+      text-align:center;
     }
-    .card[data-s="수권"]{background:var(--hydro);border-color:var(--hydro);color:#fff;}
-    .card[data-s="지권"]{background:var(--geo);border-color:var(--geo);color:#111827;}
-    .card[data-s="기권"]{background:var(--atmo);border-color:#111827;color:#111827;}
-    .card[data-s="생물권"]{background:var(--bio);border-color:var(--bio);color:#fff;}
-    .card[data-s="외권"]{background:var(--exo);border-color:var(--exo);color:#fff;}
+    /* 색은 Key(기권/수권/지권/생물권/외권) 기준으로 유지 */
+    .card[data-k="수권"]{background:var(--hydro);border-color:var(--hydro);color:#fff;}
+    .card[data-k="지권"]{background:var(--geo);border-color:var(--geo);color:#111827;}
+    .card[data-k="기권"]{background:var(--atmo);border-color:#111827;color:#111827;}
+    .card[data-k="생물권"]{background:var(--bio);border-color:var(--bio);color:#fff;}
+    .card[data-k="외권"]{background:var(--exo);border-color:var(--exo);color:#fff;}
     .card.selected{outline:4px solid rgba(17,24,39,.25);}
 
-    .slot.filled[data-s="수권"]{background:rgba(59,130,246,.12);border-color:var(--hydro);}
-    .slot.filled[data-s="지권"]{background:rgba(245,158,11,.18);border-color:var(--geo);}
-    .slot.filled[data-s="기권"]{background:#fff;border-color:#111827;}
-    .slot.filled[data-s="생물권"]{background:rgba(34,197,94,.14);border-color:var(--bio);}
-    .slot.filled[data-s="외권"]{background:rgba(109,40,217,.12);border-color:var(--exo);}
+    .slot.filled[data-k="수권"]{background:rgba(59,130,246,.12);border-color:var(--hydro);}
+    .slot.filled[data-k="지권"]{background:rgba(245,158,11,.18);border-color:var(--geo);}
+    .slot.filled[data-k="기권"]{background:#fff;border-color:#111827;}
+    .slot.filled[data-k="생물권"]{background:rgba(34,197,94,.14);border-color:var(--bio);}
+    .slot.filled[data-k="외권"]{background:rgba(109,40,217,.12);border-color:var(--exo);}
 
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:12px;z-index:50;}
     .modal{width:min(720px, 95vw);background:#fff;border-radius:16px;border:1px solid var(--line);padding:16px;box-sizing:border-box;}
@@ -111,11 +117,7 @@
     .summaryTable th,.summaryTable td{border-bottom:1px solid var(--line);padding:8px;font-size:13px;text-align:left;}
     .winnerBox{margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fafafa;font-weight:900;}
 
-    /* =========================================================
-       Earth-Party v0.1.2: Footer + About/License (SAFE ADD-ON)
-       - 기존 게임 로직을 건드리지 않고 UI만 추가
-       - z-index를 overlay(50)보다 낮게 둬서 모달 방해 없음
-       ========================================================= */
+    /* Footer */
     .ep-footer{
       position:fixed;
       left:0; right:0; bottom:0;
@@ -132,10 +134,6 @@
     .ep-footer a{color:#111827;text-decoration:underline;text-underline-offset:2px;}
     .ep-footer a:hover{opacity:.8;}
 
-    /* Footer가 화면을 가리는 것을 최소화하기 위해 wrap에 여백 추가 */
-    body{padding-bottom:64px;}
-
-    /* About/License 모달(overlay 재사용하지 않고 별도 overlay 사용: 충돌 최소) */
     .ep-overlay{
       position:fixed; inset:0;
       background:rgba(0,0,0,.35);
@@ -143,7 +141,7 @@
       align-items:center;
       justify-content:center;
       padding:12px;
-      z-index:55; /* 기존 overlay(50)보다 높게 */
+      z-index:55;
     }
     .ep-modal{
       width:min(720px, 95vw);
@@ -165,6 +163,13 @@
     <h1>🌍 Earth Party</h1>
     <div class="muted" id="connTxt">연결됨: -</div>
 
+    <!-- ✅ v0.2: 교과 선택(호스트가 대기 상태에서 변경 가능) -->
+    <div class="row">
+      <select id="subjectSelect" title="교과 선택">
+        <option value="지구과학">지구과학</option>
+      </select>
+    </div>
+
     <div class="row">
       <input id="nameInput" placeholder="내 번호(이름)" value="1"/>
       <input id="roomInput" placeholder="방 ID" />
@@ -178,7 +183,6 @@
       <button id="btnStart" style="width:100%;">게임 시작(호스트)</button>
     </div>
 
-    <!-- ✅ 요청: 다음 라운드 버튼 별도 노출 -->
     <div class="row">
       <button id="btnNextRound" style="width:100%;">다음 라운드(호스트)</button>
     </div>
@@ -233,6 +237,7 @@
   <div class="modal">
     <h2>문제 풀이</h2>
     <div class="meta">
+      <span class="pill" id="quizSubjectPill">교과</span>
       <span class="pill" id="quizSpherePill">권역</span>
       <span class="pill" id="quizTypePill">유형</span>
     </div>
@@ -264,7 +269,7 @@
   </div>
 </div>
 
-<!-- ✅ Game Summary Modal (최종 우승자 전용) -->
+<!-- Game Summary Modal -->
 <div class="overlay" id="gameOverlay">
   <div class="modal">
     <h2>게임 종료</h2>
@@ -278,9 +283,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- ===============================
-     Earth-Party v0.1.2 Footer
-     =============================== -->
+<!-- Footer -->
 <div class="ep-footer" id="epFooter">
   <div class="row1">© 2026 지구파티(Earth-Party) · 기획·개발: 송민준 (Song Minjun)</div>
   <div class="row2">
@@ -291,9 +294,7 @@
   </div>
 </div>
 
-<!-- ===============================
-     About Modal (SAFE)
-     =============================== -->
+<!-- About Modal -->
 <div class="ep-overlay" id="epAboutOverlay" aria-hidden="true">
   <div class="ep-modal" role="dialog" aria-modal="true" aria-labelledby="epAboutTitle">
     <h2 id="epAboutTitle">About · 지구파티(Earth-Party)</h2>
@@ -316,9 +317,7 @@ Official: https://earth-party.onrender.com
   </div>
 </div>
 
-<!-- ===============================
-     License Modal (SAFE)
-     =============================== -->
+<!-- License Modal -->
 <div class="ep-overlay" id="epLicenseOverlay" aria-hidden="true">
   <div class="ep-modal" role="dialog" aria-modal="true" aria-labelledby="epLicenseTitle">
     <h2 id="epLicenseTitle">License · 저작권/사용 안내</h2>
@@ -357,6 +356,9 @@ https://earth-party.onrender.com
   const btnStart = $("btnStart");
   const btnNextRound = $("btnNextRound");
 
+  // v0.2 subject
+  const subjectSelect = $("subjectSelect");
+
   const roomInfo = $("roomInfo");
   const playersBox = $("players");
   const pyramidBox = $("pyramid");
@@ -370,6 +372,7 @@ https://earth-party.onrender.com
   const toast = $("toast");
 
   const quizOverlay = $("quizOverlay");
+  const quizSubjectPill = $("quizSubjectPill");
   const quizSpherePill = $("quizSpherePill");
   const quizTypePill = $("quizTypePill");
   const quizTitle = $("quizTitle");
@@ -390,10 +393,7 @@ https://earth-party.onrender.com
   const gameTable = $("gameTable");
   const btnGameClose = $("btnGameClose");
 
-  /* =========================================================
-     Earth-Party v0.1.2: Footer links handlers (SAFE ADD-ON)
-     - 기존 게임 로직과 독립적으로 동작
-     ========================================================= */
+  // Footer overlays
   const epAboutOverlay = $("epAboutOverlay");
   const epLicenseOverlay = $("epLicenseOverlay");
   const epLinkAbout = $("epLinkAbout");
@@ -417,11 +417,9 @@ https://earth-party.onrender.com
   if (epAboutClose) epAboutClose.addEventListener("click", ()=>closeEpOverlay(epAboutOverlay));
   if (epLicenseClose) epLicenseClose.addEventListener("click", ()=>closeEpOverlay(epLicenseOverlay));
 
-  // overlay 바깥 클릭 시 닫기
   if (epAboutOverlay) epAboutOverlay.addEventListener("click", (e)=>{ if (e.target === epAboutOverlay) closeEpOverlay(epAboutOverlay); });
   if (epLicenseOverlay) epLicenseOverlay.addEventListener("click", (e)=>{ if (e.target === epLicenseOverlay) closeEpOverlay(epLicenseOverlay); });
 
-  // ESC로 닫기
   window.addEventListener("keydown", (e)=>{
     if (e.key === "Escape"){
       closeEpOverlay(epAboutOverlay);
@@ -431,8 +429,18 @@ https://earth-party.onrender.com
 
   let state = null;
   let selectedCardId = null;
-  let selectedSphere = null;
+  let selectedKey = null;     // ✅ 카드의 Key(기권/수권/지권/외권/생물권)
   let selectedPos = null;
+
+  // ✅ labelsMap / subject helpers
+  function getCurrentSubject(){
+    return (state && state.subject) ? state.subject : (subjectSelect?.value || "지구과학");
+  }
+  function getLabelForKey(key){
+    const map = state?.labelsMap || null;
+    if (map && key && map[key]) return map[key];
+    return key || "";
+  }
 
   function showToast(msg, ms=2000){
     toast.textContent = msg;
@@ -505,9 +513,11 @@ https://earth-party.onrender.com
         slot.dataset.c = String(c);
 
         if (cell){
+          // cell.sphere에는 Key가 들어있음 (v0.2)
+          const key = cell.sphere;
           slot.classList.add("filled");
-          slot.dataset.s = cell.sphere;
-          slot.textContent = cell.sphere;
+          slot.dataset.k = key;
+          slot.textContent = getLabelForKey(key);
         } else {
           slot.textContent = "";
         }
@@ -525,7 +535,7 @@ https://earth-party.onrender.com
 
     const myHand = state?.myHand || [];
     const card = myHand.find(x => x.id === cardId);
-    selectedSphere = card ? card.sphere : null;
+    selectedKey = card ? card.sphere : null; // sphere 필드가 Key 역할
 
     [...handBox.querySelectorAll(".card")].forEach(el => {
       el.classList.toggle("selected", el.dataset.id === cardId);
@@ -537,7 +547,8 @@ https://earth-party.onrender.com
 
   function updateSelText(){
     const posTxt = selectedPos ? `${selectedPos.r},${selectedPos.c}` : "-";
-    selTxt.textContent = `선택 카드: ${selectedSphere || "-"} / 선택 위치: ${posTxt}`;
+    const label = selectedKey ? getLabelForKey(selectedKey) : "-";
+    selTxt.textContent = `선택 카드: ${label} / 선택 위치: ${posTxt}`;
   }
 
   function renderHand(){
@@ -546,18 +557,21 @@ https://earth-party.onrender.com
     const myHand = state.myHand || [];
 
     for (const card of myHand){
+      const key = card.sphere; // Key
+      const label = getLabelForKey(key);
+
       const el = document.createElement("div");
       el.className = "card";
       el.dataset.id = card.id;
-      el.dataset.s = card.sphere;
-      el.textContent = card.sphere;
+      el.dataset.k = key;
+      el.textContent = label;
       el.addEventListener("click", ()=>setSelectedCard(card.id));
       handBox.appendChild(el);
     }
 
     if (selectedCardId && !myHand.find(x=>x.id===selectedCardId)){
       selectedCardId = null;
-      selectedSphere = null;
+      selectedKey = null;
     }
     if (selectedCardId){
       setSelectedCard(selectedCardId);
@@ -567,8 +581,6 @@ https://earth-party.onrender.com
     }
   }
 
-  // ✅ 핵심 수정: "아래줄이 전부 찼는지" 체크 제거
-  // 위칸은 아래 받침 2장만 있으면 가능해야 함
   function canTryPlace(r,c){
     if (!state) return false;
     if (!selectedCardId) return false;
@@ -579,8 +591,8 @@ https://earth-party.onrender.com
 
     if (state.board[r][c]) return false;
 
-    const cardSphere = selectedSphere;
-    if (!cardSphere) return false;
+    const cardKey = selectedKey;
+    if (!cardKey) return false;
 
     if (r === 7) {
       const row = state.board[7];
@@ -597,7 +609,7 @@ https://earth-party.onrender.com
     const right = state.board[r+1][c+1];
     if (!left || !right) return false;
 
-    return cardSphere === left.sphere || cardSphere === right.sphere;
+    return cardKey === left.sphere || cardKey === right.sphere;
   }
 
   function updatePlaceableSlots(){
@@ -637,18 +649,21 @@ https://earth-party.onrender.com
       roomInfo.textContent = "방 정보 없음";
       btnStart.disabled = true;
       btnNextRound.disabled = true;
+      // 교과선택은 방 밖에서도 가능
       return;
     }
 
     roomInfo.textContent =
-      `방: ${state.roomId} / 참가자: ${state.players.length} / 상태: ${state.status} / 라운드: ${state.roundIndex}/${state.totalRounds || "?"}`;
+      `방: ${state.roomId} / 참가자: ${state.players.length} / 상태: ${state.status} / 라운드: ${state.roundIndex}/${state.totalRounds || "?"} / 교과: ${state.subject || "-"}`;
 
     const me = state.players.find(p=>p.isMe);
     const isHost = !!(me && state.players.find(x=>x.isHost && x.isMe));
 
-    // 호스트만 가능
     btnStart.disabled = !isHost || state.status !== "WAITING";
     btnNextRound.disabled = !isHost || state.status !== "ROUND_END";
+
+    // ✅ 호스트 + WAITING이면 교과 변경 가능
+    subjectSelect.disabled = !(isHost && state.status === "WAITING");
   }
 
   function renderLog(){
@@ -671,7 +686,10 @@ https://earth-party.onrender.com
   // Quiz Modal
   // =========================
   function openQuizModal(payload){
-    quizSpherePill.textContent = `권역: ${payload.sphere}`;
+    const subj = payload.subject || state?.subject || getCurrentSubject();
+    const area = payload.label || payload.key || payload.sphere || ""; // ✅ 핵심 수정
+    quizSubjectPill.textContent = `교과: ${subj}`;
+    quizSpherePill.textContent = `권역: ${area}`;
     quizTypePill.textContent = `유형: ${payload.type || "-"}`;
     quizTitle.textContent = payload.question || "(제목 없음)";
     quizBody.textContent = payload.body || "";
@@ -772,7 +790,7 @@ https://earth-party.onrender.com
   });
 
   // =========================
-  // ✅ Game Summary Modal
+  // Game Summary Modal
   // =========================
   function openGameModal(gs){
     const w = gs?.winner;
@@ -809,6 +827,28 @@ https://earth-party.onrender.com
   // =========================
   socket.on("connect", ()=>{
     $("connTxt").textContent = `연결됨: ${socket.id}`;
+
+    // ✅ v0.2: 교과 목록 요청(Subjects DB 없으면 서버가 기본값만 줌)
+    socket.emit("getSubjects");
+  });
+
+  socket.on("subjectsList", (list)=>{
+    // list: [{subject, order}]
+    if (!Array.isArray(list) || !list.length) return;
+
+    const current = subjectSelect.value || "지구과학";
+    subjectSelect.innerHTML = "";
+
+    for (const row of list){
+      const opt = document.createElement("option");
+      opt.value = row.subject;
+      opt.textContent = row.subject;
+      subjectSelect.appendChild(opt);
+    }
+
+    // 가능한 한 기존 선택 유지
+    const found = list.find(x=>x.subject === current);
+    subjectSelect.value = found ? current : list[0].subject;
   });
 
   socket.on("roomCreated", ({ roomId })=>{
@@ -818,6 +858,12 @@ https://earth-party.onrender.com
 
   socket.on("roomState", (s)=>{
     state = s;
+
+    // ✅ 서버가 보내주는 subject가 있으면 select도 동기화
+    if (state?.subject && subjectSelect){
+      subjectSelect.value = state.subject;
+    }
+
     renderAll();
   });
 
@@ -837,7 +883,6 @@ https://earth-party.onrender.com
     openSummaryModal(summary);
   });
 
-  // ✅ 게임 종료 최종 결과창
   socket.on("gameSummary", (gs)=>{
     openGameModal(gs);
   });
@@ -851,7 +896,10 @@ https://earth-party.onrender.com
   // Buttons
   // =========================
   btnCreate.addEventListener("click", ()=>{
-    socket.emit("createRoom", { name: nameInput.value.trim() || "1" });
+    socket.emit("createRoom", {
+      name: nameInput.value.trim() || "1",
+      subject: subjectSelect.value || "지구과학",
+    });
   });
 
   btnJoin.addEventListener("click", ()=>{
@@ -860,16 +908,24 @@ https://earth-party.onrender.com
     socket.emit("joinRoom", { roomId, name: nameInput.value.trim() || "2" });
   });
 
-  // 첫 시작(호스트)
   btnStart.addEventListener("click", ()=>{
+    if (!state?.roomId) return showToast("방에 먼저 들어가세요.");
+    socket.emit("startGame", {
+      roomId: state.roomId,
+      subject: subjectSelect.value || "지구과학",
+    });
+  });
+
+  btnNextRound.addEventListener("click", ()=>{
     if (!state?.roomId) return showToast("방에 먼저 들어가세요.");
     socket.emit("startGame", { roomId: state.roomId });
   });
 
-  // ✅ 다음 라운드(호스트)
-  btnNextRound.addEventListener("click", ()=>{
-    if (!state?.roomId) return showToast("방에 먼저 들어가세요.");
-    socket.emit("startGame", { roomId: state.roomId }); // 서버가 ROUND_END면 다음 라운드로 처리
+  // ✅ 호스트가 WAITING일 때 교과 변경 즉시 반영
+  subjectSelect.addEventListener("change", ()=>{
+    if (!state?.roomId) return;
+    // WAITING + HOST이면 서버에서 setSubject 허용
+    socket.emit("setSubject", { roomId: state.roomId, subject: subjectSelect.value });
   });
 </script>
 </body>
