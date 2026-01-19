@@ -20,7 +20,13 @@
 
       --slot:#c7d2fe;
       --slot-strong:#4f46e5;
+
+      --ok:#16a34a;
+      --bad:#dc2626;
+      --warn:#f59e0b;
+      --muted:#6b7280;
     }
+
     body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);padding-bottom:64px;}
     .wrap{display:flex;gap:12px;padding:12px;box-sizing:border-box;max-width:1400px;margin:0 auto;}
     .left{width:320px;min-width:280px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;box-sizing:border-box;}
@@ -30,7 +36,7 @@
     input, select{padding:10px 10px;border:1px solid var(--line);border-radius:10px;outline:none;width:100%;box-sizing:border-box;}
     button{padding:10px 12px;border:1px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;font-weight:700;}
     button:disabled{opacity:.45;cursor:not-allowed}
-    .muted{color:#6b7280;font-size:12px;}
+    .muted{color:var(--muted);font-size:12px;}
     .hr{height:1px;background:var(--line);margin:10px 0;}
     .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);font-size:12px;background:#fff;}
     .players{display:flex;flex-direction:column;gap:10px;}
@@ -40,12 +46,11 @@
     .badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
     .badge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;}
     .badge.turn{background:#111827;color:#fff;border-color:#111827;}
-    .scoreline{font-size:12px;color:#374151;}
-    .big{font-size:22px;font-weight:900;margin:6px 0;}
+    .scoreline{font-size:12px;color:#374151;display:flex;gap:10px;flex-wrap:wrap;}
     .log{font-size:12px;color:#111827;white-space:pre-line;}
 
     .boardTitle{font-size:16px;font-weight:900;margin:2px 0 8px;}
-    .boardHint{font-size:12px;color:#6b7280;margin-bottom:10px;}
+    .boardHint{font-size:12px;color:var(--muted);margin-bottom:10px;}
     .pyramid{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:10px;}
     .prow{display:flex;gap:10px;justify-content:center;}
     .slot{
@@ -73,7 +78,7 @@
 
     .handArea{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;}
     .handTitle{font-size:14px;font-weight:900;margin-bottom:6px;}
-    .handHint{font-size:12px;color:#6b7280;margin-bottom:10px;}
+    .handHint{font-size:12px;color:var(--muted);margin-bottom:10px;}
     .cards{display:flex;flex-wrap:wrap;gap:10px;}
     .card{
       min-width:64px;height:38px;border-radius:10px;border:2px solid #111827;
@@ -83,7 +88,6 @@
       font-size:13px;
       text-align:center;
     }
-    /* 색은 Key(기권/수권/지권/생물권/외권) 기준으로 유지 */
     .card[data-k="수권"]{background:var(--hydro);border-color:var(--hydro);color:#fff;}
     .card[data-k="지권"]{background:var(--geo);border-color:var(--geo);color:#111827;}
     .card[data-k="기권"]{background:var(--atmo);border-color:#111827;color:#111827;}
@@ -105,7 +109,7 @@
     .modal .qbox{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;background:#fafafa;}
     .modal .qtitle{font-weight:900;margin-bottom:6px;}
     .modal .qbody{white-space:pre-wrap;color:#111827;}
-    .modal .hint{margin-top:8px;color:#6b7280;font-size:12px;}
+    .modal .hint{margin-top:8px;color:var(--muted);font-size:12px;white-space:pre-wrap;}
     .modal .ansRow{display:flex;gap:10px;align-items:center;margin-top:10px;}
     .modal select,.modal input{
       flex:1;padding:10px;border:1px solid var(--line);border-radius:10px;
@@ -119,13 +123,11 @@
 
     /* Footer */
     .ep-footer{
-      position:fixed;
-      left:0; right:0; bottom:0;
+      position:fixed;left:0; right:0; bottom:0;
       padding:10px 12px;
       background:rgba(255,255,255,.92);
       border-top:1px solid var(--line);
-      font-size:12px;
-      line-height:1.45;
+      font-size:12px;line-height:1.45;
       z-index:40;
       backdrop-filter:saturate(140%) blur(6px);
     }
@@ -152,91 +154,91 @@
       box-sizing:border-box;
     }
     .ep-modal h2{margin:0 0 8px;font-size:18px;}
-    .ep-modal .small{font-size:12px;color:#6b7280;line-height:1.5;}
+    .ep-modal .small{font-size:12px;color:var(--muted);line-height:1.5;}
     .ep-modal .block{border:1px solid var(--line);border-radius:12px;background:#fafafa;padding:12px;margin-top:10px;white-space:pre-wrap;}
     .ep-modal .btnRow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
 
-    /* =========================
-       ✅ 규칙 요약 토글(아코디언)
-       ========================= */
+    /* ✅ 규칙 요약 토글 */
     .toggleBtn{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:8px;
+      width:100%;
+      display:flex;align-items:center;justify-content:space-between;
       font-weight:900;
+      background:#fff;
     }
-    .toggleBtn::after{content:"▾";font-weight:900;opacity:.8;}
-    .toggleBtn.on::after{content:"▴";}
-    .collapse{
-      max-height:0;
-      overflow:hidden;
+    .rulesBox{
+      margin-top:8px;
       border:1px solid var(--line);
       border-radius:12px;
-      background:#fff;
-      transition:max-height .25s ease;
-    }
-    .collapseInner{padding:10px 12px;}
-    .collapse.open{max-height:260px;} /* 내용 길면 늘려도 됨 */
-
-    /* =========================
-       ✅ 플레이어 상태 UI 강화
-       ========================= */
-    .pstats{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:8px;
-      align-items:center;
-    }
-    .statChip{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:#fff;
+      background:#fafafa;
+      padding:10px;
       font-size:12px;
-      font-weight:900;
+      color:#111827;
+      line-height:1.55;
+      white-space:pre-line;
     }
-    .pbox.turnGlow{
-      border-color:#111827;
-      box-shadow:0 0 0 2px rgba(17,24,39,.10);
+    .hidden{display:none !important;}
+    .chev{font-weight:900;color:#111827;opacity:.75;}
+
+    /* ✅ 점수 UI (게임 느낌) */
+    .scoreCard{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      background:#fff;
     }
+    .scoreHead{
+      display:flex;align-items:center;justify-content:space-between;
+      font-weight:900;margin-bottom:8px;
+    }
+    .scoreGrid{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:6px 10px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    .scoreLabel{font-size:12px;color:#374151;font-weight:800;}
+    .scoreValue{font-size:14px;font-weight:900;}
     .meter{
       position:relative;
-      width:140px;
-      height:12px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      background:#f3f4f6;
+      height:12px;border-radius:999px;
+      background:#e5e7eb;
       overflow:hidden;
+      margin:8px 0 6px;
     }
-    .meter .center{
-      position:absolute;
-      left:50%;
-      top:0;
-      bottom:0;
-      width:2px;
-      background:#111827;
-      opacity:.35;
+    .meterCenter{
+      position:absolute;left:50%;top:0;bottom:0;
+      width:2px;background:rgba(17,24,39,.35);
     }
-    .meter .fill{
-      position:absolute;
-      top:0;
-      bottom:0;
-      opacity:.9;
+    .meterPos{
+      position:absolute;left:50%;top:0;bottom:0;
+      width:0%;
+      background:rgba(22,163,74,.75);
     }
-    .meter .fill.pos{left:50%;background:#22c55e;}
-    .meter .fill.neg{right:50%;background:#ef4444;}
-    .meterLabel{
-      font-size:12px;
-      font-weight:900;
+    .meterNeg{
+      position:absolute;left:50%;top:0;bottom:0;
+      width:0%;
+      background:rgba(220,38,38,.75);
+      transform:translateX(-100%);
+    }
+    .scoreIcons{
+      font-size:13px;
       color:#111827;
+      margin-bottom:6px;
+      font-weight:900;
     }
+    .tokens{
+      font-size:14px;
+      line-height:1.2;
+      margin-top:2px;
+      user-select:none;
+    }
+    .tinyHint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.35;}
+    .resultOk{color:var(--ok);font-weight:900;}
+    .resultBad{color:var(--bad);font-weight:900;}
   </style>
 </head>
+
 <body>
 <div class="wrap">
   <div class="left">
@@ -273,22 +275,19 @@
 
     <div class="hr"></div>
 
-    <!-- ✅ 규칙 요약: 버튼 토글 -->
-    <div class="row">
-      <button id="btnRulesToggle" class="toggleBtn" style="width:100%;">규칙 요약 보기</button>
-    </div>
-
-    <div id="rulesPanel" class="collapse" aria-hidden="true">
-      <div class="collapseInner muted">
-        <b>규칙 요약</b><br/>
-        - 카드 배치 전 퀴즈 진행 (정답 +0.2 / 오답 -0.2, 오답이어도 배치)<br/>
-        - 아래층: 연속 구간의 왼쪽/오른쪽 끝에만 추가<br/>
-        - 위층: 아래 2장 위에 가능 + 아래 2장 중 하나와 같은 색<br/>
-        - 놓을 곳이 없으면 자동 패스(턴 스킵)<br/>
-        - 라운드 종료: 보드가 꽉 찼거나 모든 플레이어가 연속 패스<br/>
-        - 벌점: 라운드 종료 시 남은 손패 장수 누적 (낮은 벌점 승리)<br/>
-        - 최종 우승자: 누적 벌점 최소, 동점이면 quizScore 높은 사람
-      </div>
+    <!-- ✅ 규칙 요약: 토글 버튼 -->
+    <button class="toggleBtn" id="btnRulesToggle" type="button">
+      <span>규칙 요약</span>
+      <span class="chev" id="rulesChev">▾</span>
+    </button>
+    <div class="rulesBox" id="rulesBox">
+- 카드 배치 전 퀴즈 진행 (정답 +0.2 / 오답 -0.2, 오답이어도 배치)
+- 아래층: 연속 구간의 왼쪽/오른쪽 끝에만 추가
+- 위층: 아래 2장 위에 가능 + 아래 2장 중 하나와 같은 색
+- 놓을 곳이 없으면 자동 패스(턴 스킵)
+- 라운드 종료: 보드가 꽉 찼거나 모든 플레이어가 연속 패스
+- 벌점: 라운드 종료 시 남은 손패 장수 누적 (낮은 벌점 승리)
+- 최종 우승자: 누적 벌점 최소, 동점이면 quizScore 높은 사람
     </div>
 
     <div class="hr"></div>
@@ -297,11 +296,34 @@
 
     <div class="hr"></div>
 
-    <div class="big" id="myScoreTxt">quizScore: 0.00</div>
-    <div class="big" id="myPenaltyTxt">penalty: 0</div>
-    <div class="muted" id="selTxt">선택 카드: - / 선택 위치: -</div>
+    <!-- ✅ 점수 UI 개선 -->
+    <div class="scoreCard">
+      <div class="scoreHead">
+        <span>내 상태</span>
+        <span class="pill" id="myTurnPill">-</span>
+      </div>
+
+      <div class="scoreGrid">
+        <div class="scoreLabel">quizScore</div>
+        <div class="scoreValue" id="myScoreValue">0.00</div>
+
+        <div class="scoreLabel">penalty</div>
+        <div class="scoreValue" id="myPenaltyValue">0</div>
+      </div>
+
+      <div class="meter" title="quizScore 게이지(0 기준 좌/우)">
+        <div class="meterCenter"></div>
+        <div class="meterNeg" id="myScoreNeg"></div>
+        <div class="meterPos" id="myScorePos"></div>
+      </div>
+
+      <div class="scoreIcons" id="myScoreIcons">⭐ 0</div>
+      <div class="tokens" id="myPenaltyTokens">🟥</div>
+      <div class="tinyHint" id="selTxt">선택 카드: - / 선택 위치: -</div>
+    </div>
 
     <div class="hr"></div>
+
     <div class="log" id="logBox"></div>
   </div>
 
@@ -344,6 +366,32 @@
   </div>
 </div>
 
+<!-- ✅ Answer/Explanation Result Modal -->
+<div class="overlay" id="resultOverlay">
+  <div class="modal">
+    <h2 id="resultTitle">결과</h2>
+    <div class="meta">
+      <span class="pill" id="resultPillCorrect">-</span>
+      <span class="pill" id="resultPillDelta">Δ 0</span>
+    </div>
+
+    <div class="qbox">
+      <div class="qtitle">내 답</div>
+      <div class="qbody" id="resultMyAnswer">-</div>
+    </div>
+
+    <div class="qbox">
+      <div class="qtitle">정답</div>
+      <div class="qbody" id="resultAnswer">-</div>
+      <div class="hint" id="resultExplanation"></div>
+    </div>
+
+    <div class="btnRow">
+      <button id="btnResultClose">닫기</button>
+    </div>
+  </div>
+</div>
+
 <!-- Round Summary Modal -->
 <div class="overlay" id="sumOverlay">
   <div class="modal">
@@ -374,7 +422,7 @@
 <div class="ep-footer" id="epFooter">
   <div class="row1">© 2026 지구파티(Earth-Party) · 기획·개발: 송민준 (Song Minjun)</div>
   <div class="row2">
-    v0.2.2 (Beta) · 최근 업데이트: 2026.01.19 ·
+    v0.2.1 (Beta) · 최근 업데이트: 2026.01.15 ·
     <a href="#" id="epLinkAbout">About</a> |
     <a href="#" id="epLinkLicense">License</a> |
     <a href="https://earth-party.onrender.com" target="_blank" rel="noopener">Official</a>
@@ -394,8 +442,8 @@ Earth-Party is an inquiry-based Earth Science board game
 designed to support concept understanding and formative assessment
 through real-time question-response interaction.
 
-Version: v0.2.2 (Beta)
-Last updated: 2026.01.19
+Version: v0.2.1 (Beta)
+Last updated: 2026.01.15
 Official: https://earth-party.onrender.com
     </div>
     <div class="btnRow">
@@ -419,7 +467,7 @@ Official: https://earth-party.onrender.com
 권장 인용:
 Song, M. (2026).
 Earth-Party: An inquiry-based Earth Science board game for formative assessment.
-Online educational game, v0.2.2.
+Online educational game, v0.2.1.
 https://earth-party.onrender.com
 
 원작 착안 고지:
@@ -443,11 +491,6 @@ https://earth-party.onrender.com
   const btnStart = $("btnStart");
   const btnNextRound = $("btnNextRound");
 
-  // ✅ 규칙 요약 토글
-  const btnRulesToggle = $("btnRulesToggle");
-  const rulesPanel = $("rulesPanel");
-
-  // v0.2 subject
   const subjectSelect = $("subjectSelect");
 
   const roomInfo = $("roomInfo");
@@ -456,8 +499,19 @@ https://earth-party.onrender.com
   const handBox = $("hand");
   const logBox = $("logBox");
 
-  const myScoreTxt = $("myScoreTxt");
-  const myPenaltyTxt = $("myPenaltyTxt");
+  // ✅ 규칙 요약 토글
+  const btnRulesToggle = $("btnRulesToggle");
+  const rulesBox = $("rulesBox");
+  const rulesChev = $("rulesChev");
+
+  // ✅ 점수 UI
+  const myTurnPill = $("myTurnPill");
+  const myScoreValue = $("myScoreValue");
+  const myPenaltyValue = $("myPenaltyValue");
+  const myScorePos = $("myScorePos");
+  const myScoreNeg = $("myScoreNeg");
+  const myScoreIcons = $("myScoreIcons");
+  const myPenaltyTokens = $("myPenaltyTokens");
   const selTxt = $("selTxt");
 
   const toast = $("toast");
@@ -472,6 +526,16 @@ https://earth-party.onrender.com
   const ansRow = $("ansRow");
   const btnQuizCancel = $("btnQuizCancel");
   const btnQuizSubmit = $("btnQuizSubmit");
+
+  // ✅ 결과 모달
+  const resultOverlay = $("resultOverlay");
+  const resultTitle = $("resultTitle");
+  const resultPillCorrect = $("resultPillCorrect");
+  const resultPillDelta = $("resultPillDelta");
+  const resultMyAnswer = $("resultMyAnswer");
+  const resultAnswer = $("resultAnswer");
+  const resultExplanation = $("resultExplanation");
+  const btnResultClose = $("btnResultClose");
 
   const sumOverlay = $("sumOverlay");
   const sumTitle = $("sumTitle");
@@ -515,30 +579,40 @@ https://earth-party.onrender.com
     if (e.key === "Escape"){
       closeEpOverlay(epAboutOverlay);
       closeEpOverlay(epLicenseOverlay);
+      closeResultModal();
     }
   });
 
-  // ✅ 규칙 요약 토글: localStorage로 상태 저장
+  // =========================
+  // ✅ 규칙 요약 토글 상태 저장
+  // =========================
   function setRulesOpen(open){
-    if (!btnRulesToggle || !rulesPanel) return;
-    rulesPanel.classList.toggle("open", open);
-    rulesPanel.setAttribute("aria-hidden", open ? "false" : "true");
-    btnRulesToggle.classList.toggle("on", open);
-    btnRulesToggle.textContent = open ? "규칙 요약 접기" : "규칙 요약 보기";
-    localStorage.setItem("EP_RULES_OPEN", open ? "1" : "0");
+    if (!rulesBox) return;
+    rulesBox.classList.toggle("hidden", !open);
+    if (rulesChev) rulesChev.textContent = open ? "▴" : "▾";
+    localStorage.setItem("ep_rules_open", open ? "1" : "0");
   }
-  if (btnRulesToggle && rulesPanel){
-    const saved = localStorage.getItem("EP_RULES_OPEN") === "1";
-    setRulesOpen(saved);
-    btnRulesToggle.addEventListener("click", ()=> setRulesOpen(!rulesPanel.classList.contains("open")));
-  }
+  (function initRulesToggle(){
+    const saved = localStorage.getItem("ep_rules_open");
+    const open = (saved === null) ? true : (saved === "1");
+    setRulesOpen(open);
+    if (btnRulesToggle){
+      btnRulesToggle.addEventListener("click", ()=>{
+        const isOpen = !rulesBox.classList.contains("hidden");
+        setRulesOpen(!isOpen);
+      });
+    }
+  })();
 
   let state = null;
   let selectedCardId = null;
-  let selectedKey = null;     // ✅ 카드의 Key(기권/수권/지권/외권/생물권)
+  let selectedKey = null;
   let selectedPos = null;
 
-  // ✅ labelsMap / subject helpers
+  // ✅ 퀴즈 정보 저장(결과 모달에 활용 가능)
+  let currentQuizPayload = null;
+  let lastSubmittedAnswer = "";
+
   function getCurrentSubject(){
     return (state && state.subject) ? state.subject : (subjectSelect?.value || "지구과학");
   }
@@ -555,29 +629,51 @@ https://earth-party.onrender.com
     showToast._t = setTimeout(()=>toast.style.display="none", ms);
   }
 
-  // ✅ 퀴즈 점수 게이지 HTML 생성
-  function renderQuizMeter(score){
-    const max = 2.0; // +/-2를 게이지 끝으로 (원하면 조절 가능)
-    const s = Math.max(-max, Math.min(max, Number(score || 0)));
-    const w = (Math.abs(s) / max) * 50; // 0~50(%): 중앙에서 좌/우로
-    const fill =
-      s >= 0
-        ? `<div class="fill pos" style="width:${w}%;"></div>`
-        : `<div class="fill neg" style="width:${w}%;"></div>`;
+  // =========================
+  // ✅ 점수 UI helpers
+  // =========================
+  const SCORE_RANGE = 2.0; // 게이지 기준 범위(-2~+2). 필요하면 여기만 바꾸면 됨.
 
-    const icon = s > 0 ? "🟢" : (s < 0 ? "🔴" : "⚪");
-    return `
-      <div class="statChip" title="퀴즈 점수(0 기준)">
-        🧠 <span class="meterLabel">${icon} ${s.toFixed(2)}</span>
-        <div class="meter">
-          <div class="center"></div>
-          ${fill}
-        </div>
-      </div>
-    `;
+  function setScoreGauge(score){
+    const s = Number(score || 0);
+    const mag = Math.min(Math.abs(s) / SCORE_RANGE, 1);
+    const pct = (mag * 50); // 좌/우 절반(0~50%)
+
+    if (s >= 0){
+      myScorePos.style.width = `${pct}%`;
+      myScoreNeg.style.width = `0%`;
+    } else {
+      myScoreNeg.style.width = `${pct}%`;
+      myScorePos.style.width = `0%`;
+    }
+
+    // 아이콘: 점수 양수면 ⭐, 음수면 💥
+    const abs = Math.abs(s);
+    const stars = Math.min(10, Math.floor(abs / 0.2)); // 0.2 단위 기반
+    const icon = s >= 0 ? "⭐" : "💥";
+    myScoreIcons.textContent = `${icon} ${stars}   (${s.toFixed(2)})`;
   }
 
-  // ✅ 플레이어 리스트 UI 개선(칩+게이지+턴 강조)
+  function setPenaltyTokens(pen){
+    const p = Math.max(0, Number(pen || 0));
+    myPenaltyValue.textContent = String(p);
+
+    const maxShow = 20;
+    const shown = Math.min(p, maxShow);
+    const tokens = "🟥".repeat(shown);
+    myPenaltyTokens.textContent = p <= maxShow ? (tokens || "🟥 0") : `${tokens} +${p - maxShow}`;
+  }
+
+  function updateMyTurnPill(){
+    if (!state){ myTurnPill.textContent = "-"; return; }
+    const me = state.players?.find(p=>p.isMe);
+    if (!me){ myTurnPill.textContent = "-"; return; }
+    myTurnPill.textContent = me.isTurn ? "내 턴" : "대기";
+    myTurnPill.style.borderColor = me.isTurn ? "#111827" : "var(--line)";
+    myTurnPill.style.background = me.isTurn ? "#111827" : "#fff";
+    myTurnPill.style.color = me.isTurn ? "#fff" : "#111827";
+  }
+
   function renderPlayers(){
     playersBox.innerHTML = "";
     if (!state) return;
@@ -585,15 +681,12 @@ https://earth-party.onrender.com
     for (const p of state.players){
       const div = document.createElement("div");
       div.className = "pbox";
-      if (p.isTurn) div.classList.add("turnGlow");
 
       const top = document.createElement("div");
       top.className = "top";
-
       const left = document.createElement("div");
       left.className = "pname";
       left.textContent = `P${p.seat} ${p.name}`;
-
       const badges = document.createElement("div");
       badges.className = "badges";
 
@@ -619,16 +712,16 @@ https://earth-party.onrender.com
       top.appendChild(left);
       top.appendChild(badges);
 
-      const stats = document.createElement("div");
-      stats.className = "pstats";
-      stats.innerHTML = `
-        <span class="statChip" title="손패 개수">🃏 hand <b>${p.handCount}</b></span>
-        <span class="statChip" title="누적 벌점">⚠️ penalty <b>${p.penaltyTotal}</b></span>
-        ${renderQuizMeter(p.quizScoreTotal)}
+      const score = document.createElement("div");
+      score.className = "scoreline";
+      score.innerHTML = `
+        <span>🃏 hand ${p.handCount}</span>
+        <span>🟥 penalty <b>${p.penaltyTotal}</b></span>
+        <span>⭐ quiz ${Number(p.quizScoreTotal).toFixed(2)}</span>
       `;
 
       div.appendChild(top);
-      div.appendChild(stats);
+      div.appendChild(score);
       playersBox.appendChild(div);
     }
   }
@@ -649,7 +742,6 @@ https://earth-party.onrender.com
         slot.dataset.c = String(c);
 
         if (cell){
-          // cell.sphere에는 Key가 들어있음 (v0.2)
           const key = cell.sphere;
           slot.classList.add("filled");
           slot.dataset.k = key;
@@ -671,7 +763,7 @@ https://earth-party.onrender.com
 
     const myHand = state?.myHand || [];
     const card = myHand.find(x => x.id === cardId);
-    selectedKey = card ? card.sphere : null; // sphere 필드가 Key 역할
+    selectedKey = card ? card.sphere : null;
 
     [...handBox.querySelectorAll(".card")].forEach(el => {
       el.classList.toggle("selected", el.dataset.id === cardId);
@@ -693,7 +785,7 @@ https://earth-party.onrender.com
     const myHand = state.myHand || [];
 
     for (const card of myHand){
-      const key = card.sphere; // Key
+      const key = card.sphere;
       const label = getLabelForKey(key);
 
       const el = document.createElement("div");
@@ -785,7 +877,6 @@ https://earth-party.onrender.com
       roomInfo.textContent = "방 정보 없음";
       btnStart.disabled = true;
       btnNextRound.disabled = true;
-      // 교과선택은 방 밖에서도 가능
       return;
     }
 
@@ -798,7 +889,6 @@ https://earth-party.onrender.com
     btnStart.disabled = !isHost || state.status !== "WAITING";
     btnNextRound.disabled = !isHost || state.status !== "ROUND_END";
 
-    // ✅ 호스트 + WAITING이면 교과 변경 가능
     subjectSelect.disabled = !(isHost && state.status === "WAITING");
   }
 
@@ -814,16 +904,26 @@ https://earth-party.onrender.com
     renderHand();
     renderLog();
 
-    myScoreTxt.textContent = `quizScore: ${Number(state.myQuizScore || 0).toFixed(2)}`;
-    myPenaltyTxt.textContent = `penalty: ${state.myPenalty || 0}`;
+    updateMyTurnPill();
+
+    const myScore = Number(state.myQuizScore || 0);
+    const myPen = Number(state.myPenalty || 0);
+    myScoreValue.textContent = myScore.toFixed(2);
+    setScoreGauge(myScore);
+    setPenaltyTokens(myPen);
+
+    updateSelText();
   }
 
   // =========================
   // Quiz Modal
   // =========================
   function openQuizModal(payload){
+    currentQuizPayload = payload || null;
+    lastSubmittedAnswer = "";
+
     const subj = payload.subject || state?.subject || getCurrentSubject();
-    const area = payload.label || payload.key || payload.sphere || ""; // ✅ 핵심 수정
+    const area = payload.label || payload.key || payload.sphere || "";
     quizSubjectPill.textContent = `교과: ${subj}`;
     quizSpherePill.textContent = `권역: ${area}`;
     quizTypePill.textContent = `유형: ${payload.type || "-"}`;
@@ -884,11 +984,44 @@ https://earth-party.onrender.com
 
   btnQuizSubmit.addEventListener("click", ()=>{
     const el = document.getElementById("ansInput");
-    const ans = el ? el.value : "";
+    const ans = el ? String(el.value || "").trim() : "";
+    if (!ans) return showToast("정답을 입력/선택하세요.");
     if (!state?.roomId) return;
+
+    lastSubmittedAnswer = ans;
     socket.emit("submitAnswer", { roomId: state.roomId, answer: ans });
     closeQuizModal();
   });
+
+  // =========================
+  // ✅ Result Modal
+  // =========================
+  function openResultModal({ correct, delta, answer, explanation, userAnswer }){
+    const ok = !!correct;
+    resultTitle.textContent = ok ? "정답!" : "오답";
+    resultPillCorrect.innerHTML = ok
+      ? `<span class="resultOk">✅ 정답</span>`
+      : `<span class="resultBad">❌ 오답</span>`;
+    resultPillDelta.textContent = `Δ ${delta > 0 ? "+" : ""}${Number(delta || 0).toFixed(2)}`;
+
+    const ua = (userAnswer ?? lastSubmittedAnswer ?? "").toString().trim() || "-";
+    resultMyAnswer.textContent = ua;
+
+    const ans = (answer ?? currentQuizPayload?.answer ?? "").toString().trim() || "(정답 정보 없음)";
+    resultAnswer.textContent = ans;
+
+    const exp = (explanation ?? currentQuizPayload?.explanation ?? "").toString().trim();
+    resultExplanation.textContent = exp ? `해설: ${exp}` : "";
+
+    resultOverlay.style.display = "flex";
+  }
+
+  function closeResultModal(){
+    resultOverlay.style.display = "none";
+  }
+
+  if (btnResultClose) btnResultClose.addEventListener("click", closeResultModal);
+  if (resultOverlay) resultOverlay.addEventListener("click", (e)=>{ if (e.target === resultOverlay) closeResultModal(); });
 
   // =========================
   // Round Summary Modal
@@ -963,13 +1096,10 @@ https://earth-party.onrender.com
   // =========================
   socket.on("connect", ()=>{
     $("connTxt").textContent = `연결됨: ${socket.id}`;
-
-    // ✅ v0.2: 교과 목록 요청(Subjects DB 없으면 서버가 기본값만 줌)
     socket.emit("getSubjects");
   });
 
   socket.on("subjectsList", (list)=>{
-    // list: [{subject, order}]
     if (!Array.isArray(list) || !list.length) return;
 
     const current = subjectSelect.value || "지구과학";
@@ -982,7 +1112,6 @@ https://earth-party.onrender.com
       subjectSelect.appendChild(opt);
     }
 
-    // 가능한 한 기존 선택 유지
     const found = list.find(x=>x.subject === current);
     subjectSelect.value = found ? current : list[0].subject;
   });
@@ -995,7 +1124,6 @@ https://earth-party.onrender.com
   socket.on("roomState", (s)=>{
     state = s;
 
-    // ✅ 서버가 보내주는 subject가 있으면 select도 동기화
     if (state?.subject && subjectSelect){
       subjectSelect.value = state.subject;
     }
@@ -1007,8 +1135,21 @@ https://earth-party.onrender.com
     openQuizModal(payload);
   });
 
-  socket.on("quizResult", ({ correct, delta })=>{
-    showToast(`${correct ? "정답" : "오답"} (${delta > 0 ? "+" : ""}${delta})`);
+  // ✅ quizResult: 정답/오답 + 정답/해설 표시(서버가 함께 보내줘야 완전 동작)
+  socket.on("quizResult", (payload)=>{
+    const correct = !!payload?.correct;
+    const delta = Number(payload?.delta || 0);
+
+    showToast(`${correct ? "정답 ✅" : "오답 ❌"} (${delta > 0 ? "+" : ""}${delta.toFixed(2)})`, 2500);
+
+    const answer = payload?.answer ?? null;
+    const explanation = payload?.explanation ?? null;
+    const userAnswer = payload?.userAnswer ?? lastSubmittedAnswer ?? "";
+
+    // answer/explanation이 오면 결과 모달 오픈
+    if (answer || explanation){
+      openResultModal({ correct, delta, answer, explanation, userAnswer });
+    }
   });
 
   socket.on("quizCancelled", ()=>{
@@ -1057,10 +1198,8 @@ https://earth-party.onrender.com
     socket.emit("startGame", { roomId: state.roomId });
   });
 
-  // ✅ 호스트가 WAITING일 때 교과 변경 즉시 반영
   subjectSelect.addEventListener("change", ()=>{
     if (!state?.roomId) return;
-    // WAITING + HOST이면 서버에서 setSubject 허용
     socket.emit("setSubject", { roomId: state.roomId, subject: subjectSelect.value });
   });
 </script>

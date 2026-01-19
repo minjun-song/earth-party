@@ -846,7 +846,7 @@ io.on("connection", (socket) => {
         body: q.body,
         choices: q.choices,
         hint: q.hint,
-        explanation: q.explanation,
+        explanation: q.explanation, // (선택) 미리 보여주고 싶지 않으면 클라이언트에서 표시 안 하면 됨
         difficulty: q.difficulty,
       });
     } catch (e) {
@@ -854,6 +854,9 @@ io.on("connection", (socket) => {
     }
   });
 
+  // ======================================================
+  // ✅ 여기가 핵심 수정: quizResult에 정답/해설/내답 포함
+  // ======================================================
   socket.on("submitAnswer", async ({ roomId, answer }) => {
     try {
       const room = ensureRoom(roomId);
@@ -870,7 +873,8 @@ io.on("connection", (socket) => {
       if (currentSid(room) !== sid) throw new Error("내 턴이 아닙니다.");
       if (!canPlaceAt(room.board, pend.r, pend.c, card.sphere)) throw new Error("해당 위치에 놓을 수 없습니다.");
 
-      const correct = gradeAnswer(pend.q, answer);
+      const userAnswer = (answer || "").toString().trim();
+      const correct = gradeAnswer(pend.q, userAnswer);
       const delta = correct ? 0.2 : -0.2;
       p.quizScoreTotal += delta;
 
@@ -882,18 +886,29 @@ io.on("connection", (socket) => {
         `[PLAY] P${p.seat} ${card.sphere} (${pend.r},${pend.c}) / ${correct ? "정답" : "오답"} (${delta > 0 ? "+" : ""}${delta})`
       );
 
+      // pendingQuiz 종료
       room.pendingQuiz = null;
 
+      // 라운드 종료 조건
       if (boardIsFull(room.board)) {
         endRound(room, "보드가 모두 채워짐");
         return;
       }
 
+      // 턴 진행
       nextTurn(room);
       autoSkipIfNoMoves(room);
       broadcastRoom(room);
 
-      io.to(sid).emit("quizResult", { correct, delta, quizScoreTotal: +p.quizScoreTotal.toFixed(2) });
+      // ✅ 정답/해설/내답을 클라이언트로 전달
+      io.to(sid).emit("quizResult", {
+        correct,
+        delta,
+        userAnswer,
+        answer: (pend.q?.answer || "").toString(),
+        explanation: (pend.q?.explanation || "").toString(),
+        quizScoreTotal: +p.quizScoreTotal.toFixed(2),
+      });
     } catch (e) {
       io.to(sid).emit("errorMsg", `제출 실패: ${e.message}`);
     }
