@@ -155,6 +155,86 @@
     .ep-modal .small{font-size:12px;color:#6b7280;line-height:1.5;}
     .ep-modal .block{border:1px solid var(--line);border-radius:12px;background:#fafafa;padding:12px;margin-top:10px;white-space:pre-wrap;}
     .ep-modal .btnRow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
+
+    /* =========================
+       ✅ 규칙 요약 토글(아코디언)
+       ========================= */
+    .toggleBtn{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+      font-weight:900;
+    }
+    .toggleBtn::after{content:"▾";font-weight:900;opacity:.8;}
+    .toggleBtn.on::after{content:"▴";}
+    .collapse{
+      max-height:0;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      transition:max-height .25s ease;
+    }
+    .collapseInner{padding:10px 12px;}
+    .collapse.open{max-height:260px;} /* 내용 길면 늘려도 됨 */
+
+    /* =========================
+       ✅ 플레이어 상태 UI 강화
+       ========================= */
+    .pstats{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:8px;
+      align-items:center;
+    }
+    .statChip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:12px;
+      font-weight:900;
+    }
+    .pbox.turnGlow{
+      border-color:#111827;
+      box-shadow:0 0 0 2px rgba(17,24,39,.10);
+    }
+    .meter{
+      position:relative;
+      width:140px;
+      height:12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#f3f4f6;
+      overflow:hidden;
+    }
+    .meter .center{
+      position:absolute;
+      left:50%;
+      top:0;
+      bottom:0;
+      width:2px;
+      background:#111827;
+      opacity:.35;
+    }
+    .meter .fill{
+      position:absolute;
+      top:0;
+      bottom:0;
+      opacity:.9;
+    }
+    .meter .fill.pos{left:50%;background:#22c55e;}
+    .meter .fill.neg{right:50%;background:#ef4444;}
+    .meterLabel{
+      font-size:12px;
+      font-weight:900;
+      color:#111827;
+    }
   </style>
 </head>
 <body>
@@ -193,15 +273,22 @@
 
     <div class="hr"></div>
 
-    <div class="muted">
-      <b>규칙 요약</b><br/>
-      - 카드 배치 전 퀴즈 진행 (정답 +0.2 / 오답 -0.2, 오답이어도 배치)<br/>
-      - 아래층: 연속 구간의 왼쪽/오른쪽 끝에만 추가<br/>
-      - 위층: 아래 2장 위에 가능 + 아래 2장 중 하나와 같은 색<br/>
-      - 놓을 곳이 없으면 자동 패스(턴 스킵)<br/>
-      - 라운드 종료: 보드가 꽉 찼거나 모든 플레이어가 연속 패스<br/>
-      - 벌점: 라운드 종료 시 남은 손패 장수 누적 (낮은 벌점 승리)<br/>
-      - 최종 우승자: 누적 벌점 최소, 동점이면 quizScore 높은 사람
+    <!-- ✅ 규칙 요약: 버튼 토글 -->
+    <div class="row">
+      <button id="btnRulesToggle" class="toggleBtn" style="width:100%;">규칙 요약 보기</button>
+    </div>
+
+    <div id="rulesPanel" class="collapse" aria-hidden="true">
+      <div class="collapseInner muted">
+        <b>규칙 요약</b><br/>
+        - 카드 배치 전 퀴즈 진행 (정답 +0.2 / 오답 -0.2, 오답이어도 배치)<br/>
+        - 아래층: 연속 구간의 왼쪽/오른쪽 끝에만 추가<br/>
+        - 위층: 아래 2장 위에 가능 + 아래 2장 중 하나와 같은 색<br/>
+        - 놓을 곳이 없으면 자동 패스(턴 스킵)<br/>
+        - 라운드 종료: 보드가 꽉 찼거나 모든 플레이어가 연속 패스<br/>
+        - 벌점: 라운드 종료 시 남은 손패 장수 누적 (낮은 벌점 승리)<br/>
+        - 최종 우승자: 누적 벌점 최소, 동점이면 quizScore 높은 사람
+      </div>
     </div>
 
     <div class="hr"></div>
@@ -356,6 +443,10 @@ https://earth-party.onrender.com
   const btnStart = $("btnStart");
   const btnNextRound = $("btnNextRound");
 
+  // ✅ 규칙 요약 토글
+  const btnRulesToggle = $("btnRulesToggle");
+  const rulesPanel = $("rulesPanel");
+
   // v0.2 subject
   const subjectSelect = $("subjectSelect");
 
@@ -427,6 +518,21 @@ https://earth-party.onrender.com
     }
   });
 
+  // ✅ 규칙 요약 토글: localStorage로 상태 저장
+  function setRulesOpen(open){
+    if (!btnRulesToggle || !rulesPanel) return;
+    rulesPanel.classList.toggle("open", open);
+    rulesPanel.setAttribute("aria-hidden", open ? "false" : "true");
+    btnRulesToggle.classList.toggle("on", open);
+    btnRulesToggle.textContent = open ? "규칙 요약 접기" : "규칙 요약 보기";
+    localStorage.setItem("EP_RULES_OPEN", open ? "1" : "0");
+  }
+  if (btnRulesToggle && rulesPanel){
+    const saved = localStorage.getItem("EP_RULES_OPEN") === "1";
+    setRulesOpen(saved);
+    btnRulesToggle.addEventListener("click", ()=> setRulesOpen(!rulesPanel.classList.contains("open")));
+  }
+
   let state = null;
   let selectedCardId = null;
   let selectedKey = null;     // ✅ 카드의 Key(기권/수권/지권/외권/생물권)
@@ -449,6 +555,29 @@ https://earth-party.onrender.com
     showToast._t = setTimeout(()=>toast.style.display="none", ms);
   }
 
+  // ✅ 퀴즈 점수 게이지 HTML 생성
+  function renderQuizMeter(score){
+    const max = 2.0; // +/-2를 게이지 끝으로 (원하면 조절 가능)
+    const s = Math.max(-max, Math.min(max, Number(score || 0)));
+    const w = (Math.abs(s) / max) * 50; // 0~50(%): 중앙에서 좌/우로
+    const fill =
+      s >= 0
+        ? `<div class="fill pos" style="width:${w}%;"></div>`
+        : `<div class="fill neg" style="width:${w}%;"></div>`;
+
+    const icon = s > 0 ? "🟢" : (s < 0 ? "🔴" : "⚪");
+    return `
+      <div class="statChip" title="퀴즈 점수(0 기준)">
+        🧠 <span class="meterLabel">${icon} ${s.toFixed(2)}</span>
+        <div class="meter">
+          <div class="center"></div>
+          ${fill}
+        </div>
+      </div>
+    `;
+  }
+
+  // ✅ 플레이어 리스트 UI 개선(칩+게이지+턴 강조)
   function renderPlayers(){
     playersBox.innerHTML = "";
     if (!state) return;
@@ -456,12 +585,15 @@ https://earth-party.onrender.com
     for (const p of state.players){
       const div = document.createElement("div");
       div.className = "pbox";
+      if (p.isTurn) div.classList.add("turnGlow");
 
       const top = document.createElement("div");
       top.className = "top";
+
       const left = document.createElement("div");
       left.className = "pname";
       left.textContent = `P${p.seat} ${p.name}`;
+
       const badges = document.createElement("div");
       badges.className = "badges";
 
@@ -487,12 +619,16 @@ https://earth-party.onrender.com
       top.appendChild(left);
       top.appendChild(badges);
 
-      const score = document.createElement("div");
-      score.className = "scoreline";
-      score.textContent = `hand: ${p.handCount} | penalty: ${p.penaltyTotal} | quizScore: ${Number(p.quizScoreTotal).toFixed(2)}`;
+      const stats = document.createElement("div");
+      stats.className = "pstats";
+      stats.innerHTML = `
+        <span class="statChip" title="손패 개수">🃏 hand <b>${p.handCount}</b></span>
+        <span class="statChip" title="누적 벌점">⚠️ penalty <b>${p.penaltyTotal}</b></span>
+        ${renderQuizMeter(p.quizScoreTotal)}
+      `;
 
       div.appendChild(top);
-      div.appendChild(score);
+      div.appendChild(stats);
       playersBox.appendChild(div);
     }
   }
